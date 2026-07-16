@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Triple One | Global Operating Platform</title>
+    
+    <!-- الخطوط العالمية الفاخرة -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <!-- مكتبة الأيقونات الفاخرة Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <style>
+        :root {
+            --primary: #0f172a;
+            --secondary: #2563eb;
+            --accent: #38bdf8;
+            --accent-glow: #06b6d4;
+            --white: #ffffff;
+            --premium-gold: #f59e0b;
+            --neon-glow: rgba(56, 189, 248, 0.4);
+            --gold-glow: rgba(245, 158, 11, 0.4);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
+        
+        html {
+            scroll-snap-type: y mandatory;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: #020617;
+            overflow-x: hidden;
+            font-family: 'Almarai', sans-serif;
+            color: #f8fafc;
+        }
+
+        #particle-canvas {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: 1; pointer-events: none; opacity: 0.6;
+        }
+
+        /* شريط المهام الزجاجي الثابت */
+        .taskbar {
+            width: 100%; height: 80px; 
+            background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(56, 189, 248, 0.2); position: fixed; top: 0; z-index: 10000;
+            display: flex; justify-content: space-between; align-items: center; padding: 0 4%;
+        }
+        .logo-section { display: flex; align-items: center; gap: 15px; }
+        .logo-text { font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 28px; color: #fff; letter-spacing: -1px; }
+        .logo-text span { color: var(--accent); text-shadow: 0 0 15px var(--neon-glow); }
+        .badge-all { background: linear-gradient(135deg, var(--secondary), #1d4ed8); color: white; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 800; letter-spacing: 2px; }
+
+        .social-nav { display: flex; gap: 20px; align-items: center; }
+        .social-nav a { color: #94a3b8; font-size: 20px; text-decoration: none; }
+        .social-nav a:hover { color: var(--accent); transform: scale(1.2); text-shadow: 0 0 10px var(--accent); }
+        .social-nav a.snap-icon:hover { color: #fffc00; text-shadow: 0 0 10px #fffc00; }
+
+        .btn-switch {
+            background: linear-gradient(135deg, var(--secondary) 0%, #1d4ed8 100%);
+            color: white; border: none; padding: 10px 22px; border-radius: 6px;
+            font-weight: 800; cursor: pointer; font-size: 13px; box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
+        }
+        .btn-switch:hover { background: #1e40af; transform: translateY(-2px); box-shadow: 0 0 25px var(--secondary); }
+
+        /* هيكل الشرائح القفازة */
+        .main-deck { position: relative; z-index: 2; }
+        .slide-frame {
+            width: 100%; min-height: 100vh; height: 100vh;
+            scroll-snap-align: start; scroll-snap-stop: always;
+            display: flex; flex-direction: column; justify-content: center;
+            position: relative; overflow: hidden; padding-top: 80px;
+        }
+
+        /* نظام ثنائي اللغة */
+        [lang-ar] { direction: rtl; text-align: right; }
+        [lang-en] { direction: ltr; text-align: left; display: none; }
+
+        .slide-header { padding: 10px 8%; display: flex; align-items: center; justify-content: space-between; }
+        .title-styled { font-size: 38px; font-weight: 800; color: #fff; border-right: 10px solid var(--accent); padding-right: 20px; line-height: 1.1; text-shadow: 0 0 20px rgba(255,255,255,0.1); }
+        
+        /* شريط التنقل الجانبي النقطي */
+        .side-nav {
+            position: fixed; right: 30px; top: 50%; transform: translateY(-50%);
+            display: flex; flex-direction: column; gap: 15px; z-index: 1000;
+        }
+        .bullet {
+            width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,0.2);
+            cursor: pointer; border: 2px solid transparent;
+        }
+        .bullet.active { background: var(--accent); border-color: #fff; box-shadow: 0 0 15px var(--accent); transform: scale(1.3); }
+
+        /* الـ HERO الفاخرة بمسافات آمنة */
+        .hero-full-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center;
+        }
+        .hero-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, rgba(2,6,23,0.95) 20%, rgba(9,13,22,0.85) 100%);
+            z-index: 1;
+        }
+        
+        .hero-inner { 
+            position: relative; 
+            z-index: 2; 
+            padding: 100px 8% 40px; 
+            max-width: 1400px; 
+            width: 100%; 
+            text-align: center; 
+            margin: 0 auto; 
+        }
+        
+        .hero-inner h1 { 
+            font-size: 85px; font-weight: 800; letter-spacing: -2px; line-height: 1.3; margin-bottom: 20px;
+            background: linear-gradient(135deg, #ffffff 30%, var(--accent) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            filter: drop-shadow(0px 4px 20px rgba(56, 189, 248, 0.2));
+            animation: fadeInUp 1s ease-out forwards;
+        }
+        
+        .hero-tagline {
+            font-size: 38px; font-weight: 800; margin-bottom: 25px; line-height: 1.3;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-glow) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 0px 0px 30px rgba(56, 189, 248, 0.25);
+            animation: fadeInUp 1.2s ease-out forwards;
+        }
+
+        .hero-desc {
+            font-size: 22px; color: #94a3b8; font-weight: 400; margin-bottom: 40px; letter-spacing: 0.5px;
+            animation: fadeInUp 1.4s ease-out forwards;
+        }
+
+        .hero-cta-group {
+            display: flex; gap: 20px; justify-content: center; align-items: center;
+            animation: fadeInUp 1.6s ease-out forwards;
+        }
+        .btn-cta-primary {
+            background: linear-gradient(135deg, var(--secondary) 0%, #1d4ed8 100%);
+            color: #fff; text-decoration: none; padding: 16px 36px; border-radius: 8px;
+            font-size: 16px; font-weight: 700; box-shadow: 0 0 25px rgba(37, 99, 235, 0.4);
+            display: inline-flex; align-items: center; gap: 10px; border: 1px solid rgba(255,255,255,0.1);
+            cursor: pointer;
+        }
+        .btn-cta-primary:hover {
+            transform: translateY(-3px); box-shadow: 0 0 35px var(--secondary); background: #1e40af;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* المكونات الأخرى المستقرة */
+        .body-box { flex-grow: 1; padding: 10px 8%; display: flex; align-items: center; justify-content: center; width: 100%; overflow: hidden; }
+        .pillar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; width: 100%; }
+        .pillar-card { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; overflow: hidden; }
+        .pillar-card:hover { transform: translateY(-10px); border-color: var(--accent); box-shadow: 0 0 30px var(--neon-glow); }
+        .pillar-img { height: 180px; width: 100%; overflow: hidden; position: relative; }
+        .pillar-img img { width: 100%; height: 100%; object-fit: cover; }
+        .pillar-txt { padding: 25px; }
+        .pillar-txt h3 { font-size: 24px; color: #fff; margin-bottom: 12px; }
+        .pillar-txt p { font-size: 15px; color: #94a3b8; line-height: 1.6; }
+
+        .packages-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 100%; }
+        .pkg-card { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+        .pkg-card:hover { transform: translateY(-8px) scale(1.02); border-color: var(--accent); box-shadow: 0 0 30px var(--neon-glow); }
+        .pkg-card.featured { border: 2px solid var(--premium-gold); box-shadow: 0 0 30px var(--gold-glow); }
+        .pkg-badge { position: absolute; top: -14px; left: 20px; background: linear-gradient(135deg, var(--premium-gold), #d97706); color: #020617; font-size: 11px; font-weight: 900; padding: 5px 14px; border-radius: 20px; }
+        .pkg-header h3 { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+        .pkg-sub { font-size: 13px; color: var(--accent); font-weight: 700; margin-bottom: 12px; }
+        .pkg-features { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
+        .pkg-features li { font-size: 11px; color: #cbd5e1; display: flex; align-items: flex-start; gap: 6px; }
+        .pkg-features li i { color: #10b981; margin-top: 2px; }
+        .pkg-footer { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px; font-size: 12px; }
+
+        .dock { display: flex; gap: 20px; justify-content: center; margin-top: 25px; flex-wrap: wrap; }
+        .dock-btn { width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; color: white; text-decoration: none; }
+        .dock-btn:hover { transform: scale(1.2) rotate(12deg); }
+        .wa-d { background: #25d366; } 
+        .li-d { background: #0077b5; } 
+        .tt-d { background: #000; border: 1px solid var(--accent); } 
+        .ig-d { background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); }
+        .snap-d { background: #fffc00; color: #000; box-shadow: 0 0 15px rgba(255, 252, 0, 0.3); }
+        .snap-d:hover { box-shadow: 0 0 25px #fffc00; }
+
+        .marquee-wrapper { margin-top: 40px; width: 100%; overflow: hidden; background: rgba(15, 23, 42, 0.6); border-top: 1px solid rgba(56, 189, 248, 0.2); border-bottom: 1px solid rgba(56, 189, 248, 0.2); padding: 16px 0; display: flex; }
+        .marquee-content { display: flex; white-space: nowrap; gap: 50px; }
+        .marquee-ar { animation: marqueeRTL 25s linear infinite; }
+        .marquee-en { animation: marqueeLTR 25s linear infinite; display: none; }
+        @keyframes marqueeRTL { 0% { transform: translateX(0%); } 100% { transform: translateX(50%); } }
+        @keyframes marqueeLTR { 0% { transform: translateX(0%); } 100% { transform: translateX(-50%); } }
+        .marquee-item { font-size: 18px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 15px; }
+        .marquee-item i { color: var(--accent); }
+    </style>
+</head>
+<body>
+
+    <canvas id="particle-canvas"></canvas>
+
+    <!-- شريط المهام العلوي -->
+    <nav class="taskbar">
+        <div class="logo-section">
+            <div class="logo-text">TRIPLE<span>ONE</span></div>
+            <div class="badge-all">ALL IN ONE</div>
+        </div>
+        <div class="social-nav">
+            <a href="https://wa.me/201286819571" target="_blank"><i class="fa-brands fa-whatsapp"></i></a>
+            <a href="https://www.linkedin.com/company/triple-one-solutions/" target="_blank"><i class="fa-brands fa-linkedin-in"></i></a>
+            <a href="https://www.instagram.com/triple_one.co" target="_blank"><i class="fa-brands fa-instagram"></i></a>
+            <a href="https://snapchat.com/t/eOzyGWel" target="_blank" class="snap-icon"><i class="fa-brands fa-snapchat"></i></a>
+            <a href="https://www.tiktok.com/@tripleone.co" target="_blank"><i class="fa-brands fa-tiktok"></i></a>
+        </div>
+        <button class="btn-switch" onclick="switchSystemLang()" id="btnSwitch">ENGLISH VERSION</button>
+    </nav>
+
+    <!-- المؤشر النقطي الجانبي -->
+    <div class="side-nav" id="sideNav">
+        <div class="bullet active" onclick="goToSlide(0)"></div>
+        <div class="bullet" onclick="goToSlide(1)"></div>
+        <div class="bullet" onclick="goToSlide(2)"></div>
+        <div class="bullet" onclick="goToSlide(3)"></div>
+        <div class="bullet" onclick="goToSlide(4)"></div>
+        <div class="bullet" onclick="goToSlide(5)"></div>
+    </div>
+
+    <main class="main-deck">
+        
+        <!-- الشريحة 1: شريحة البطل الفاخرة -->
+        <section class="slide-frame">
+            <div class="hero-full-bg" style="background-image: url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1280&q=80');">
+                <div class="hero-overlay"></div>
+                <div class="hero-inner">
+                    <div lang-ar>
+                        <h1>Triple One</h1>
+                        <p class="hero-tagline">منصة واحدة. تميز تشغيلي متكامل.</p>
+                        <p class="hero-desc">استشارات الأعمال • الموارد البشرية • المالية والمحاسبة • التقنية</p>
+                        <div class="hero-cta-group">
+                            <div onclick="goToSlide(3)" class="btn-cta-primary">
+                                اكتشف باقاتنا التشغيلية <i class="fa-solid fa-arrow-left" style="margin-right: 8px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div lang-en>
+                        <h1>Triple One</h1>
+                        <p class="hero-tagline">One Platform. Total Operational Excellence.</p>
+                        <p class="hero-desc">Business Consulting • HR Solutions • Finance & Audit • Tech Solutions</p>
+                        <div class="hero-cta-group">
+                            <div onclick="goToSlide(3)" class="btn-cta-primary">
+                                Explore Our Packages <i class="fa-solid fa-arrow-right" style="margin-left: 8px;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- الشريحة 2: المشكلة والحل -->
+        <section class="slide-frame" style="display: grid; grid-template-columns: 1.1fr 0.9fr; background: #090d16;">
+            <div style="padding: 60px; display: flex; flex-direction: column; justify-content: center; z-index: 2;">
+                <div lang-ar>
+                    <h2 class="title-styled" style="border-right: 10px solid var(--accent); padding-right: 20px;">إنهاء التشتت التشغيلي</h2>
+                    <h3 style="color: #ef4444; font-size: 24px; margin: 25px 0 15px;"><i class="fa-solid fa-triangle-exclamation"></i> المشكلة: جزر منعزلة وهدر هائل</h3>
+                    <p style="font-size: 18px; color: #cbd5e1; line-height: 1.7;">تعاني المنظمات النامية من تشتت قاتل؛ الموارد البشرية والمالية والتقنية تعمل في صوامع منفصلة، مما يسبب ضياع 30% من الإنتاجية وفشل محقق في محاولات التوسع المنهجي.</p>
+                </div>
+                <div lang-en>
+                    <h2 class="title-styled" style="border-left: 10px solid var(--accent); padding-left: 20px;">Ending Fragmentation</h2>
+                    <h3 style="color: #ef4444; font-size: 24px; margin: 25px 0 15px;"><i class="fa-solid fa-triangle-exclamation"></i> Problem: Siloed Operations</h3>
+                    <p style="font-size: 18px; color: #cbd5e1; line-height: 1.7;">Most growing organizations operate in fragments. HR, Finance, and Tech run in silos, leading to 30% lost productivity.</p>
+                </div>
+            </div>
+            <div style="position: relative; width: 100%; height: 100%;">
+                <div style="position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(to right, #090d16, transparent); z-index:1;"></div>
+                <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=600&q=80" style="width: 100%; height: 100%; object-fit: cover;">
+            </div>
+        </section>
+
+        <!-- الشريحة 3: الركائز التشغيلية -->
+        <section class="slide-frame" style="background: #040811;">
+            <div class="slide-header">
+                <h2 class="title-styled" lang-ar style="border-right: 10px solid var(--accent); padding-right: 20px;">الركائز التشغيلية المدمجة</h2>
+                <h2 class="title-styled" lang-en style="border-left: 10px solid var(--accent); padding-left: 20px;">Integrated Service Pillars</h2>
+            </div>
+            <div class="body-box">
+                <div class="pillar-grid">
+                    <div class="pillar-card">
+                        <div class="pillar-img"><img src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=400&q=80" alt="HR"></div>
+                        <div class="pillar-txt">
+                            <h3 lang-ar>الموارد البشرية</h3><h3 lang-en>HR Operations</h3>
+                            <p lang-ar>أتمتة الرواتب، تصميم الهياكل، والامتثال الذكي والكامل للمنصات الحكومية.</p>
+                            <p lang-en>Payroll automation, org design, and smart government compliance.</p>
+                        </div>
+                    </div>
+                    <div class="pillar-card">
+                        <div class="pillar-img"><img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=400&q=80" alt="Finance"></div>
+                        <div class="pillar-txt">
+                            <h3 lang-ar>المالية والمحاسبة</h3><h3 lang-en>Finance & Audit</h3>
+                            <p lang-ar>مسك الدفاتر الاحترافي، التقارير الضريبية، والجاهزية التامة للتدقيق المالي.</p>
+                            <p lang-en>Bookkeeping, tax filing, and comprehensive audit readiness.</p>
+                        </div>
+                    </div>
+                    <div class="pillar-card">
+                        <div class="pillar-img"><img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=400&q=80" alt="Tech"></div>
+                        <div class="pillar-txt">
+                            <h3 lang-ar>التقنية والبيانات</h3><h3 lang-en>Tech & Data</h3>
+                            <p lang-ar>التحول الرقمي، تنفيذ وتصميم أنظمة ERP/CRM، وأتمتة مسارات العمل المعقدة.</p>
+                            <p lang-en>Digital transformation, ERP architecture, and workflow automation.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- الشريحة 4: الباقات -->
+        <section class="slide-frame" style="background: #020612;">
+            <div class="slide-header">
+                <h2 class="title-styled" lang-ar style="border-right: 10px solid var(--accent); padding-right: 20px;">باقات الخدمات والحلول التشغيلية</h2>
+                <h2 class="title-styled" lang-en style="border-left: 10px solid var(--accent); padding-left: 20px;">Operational Service Packages</h2>
+            </div>
+            <div class="body-box">
+                <div class="packages-grid">
+                    <div class="pkg-card">
+                        <div class="pkg-header">
+                            <h3 lang-ar>1. التأسيس والانطلاق</h3><h3 lang-en>1. Launch Package</h3>
+                            <div class="pkg-sub" lang-ar><i class="fa-solid fa-building"></i> فرع واحد</div><div class="pkg-sub" lang-en><i class="fa-solid fa-building"></i> 1 Branch</div>
+                        </div>
+                        <ul class="pkg-features">
+                            <li lang-ar><i class="fa-solid fa-shield-halved"></i> السجل التجاري والغرفة التجارية عبر المركز السعودي للأعمال.</li>
+                            <li lang-en><i class="fa-solid fa-shield-halved"></i> CR & Chamber setup via Saudi Business Center.</li>
+                            <li lang-ar><i class="fa-solid fa-shield-halved"></i> فتح ملفات المنشأة وتفعيل التوثيق الرقمي من خلال "نفاذ".</li>
+                            <li lang-en><i class="fa-solid fa-shield-halved"></i> Verification via Nafath.</li>
+                        </ul>
+                        <div class="pkg-footer"><p lang-ar>الميزة: <span>امتثال وجاهزية 100%</span></p><p lang-en>Advantage: <span>100% Compliance</span></p></div>
+                    </div>
+
+                    <div class="pkg-card">
+                        <div class="pkg-header">
+                            <h3 lang-ar>2. الامتثال والاستقرار</h3><h3 lang-en>2. Compliance Package</h3>
+                            <div class="pkg-sub" lang-ar><i class="fa-solid fa-building"></i> فرع واحد</div><div class="pkg-sub" lang-en><i class="fa-solid fa-building"></i> 1 Branch</div>
+                        </div>
+                        <ul class="pkg-features">
+                            <li lang-ar><i class="fa-solid fa-circle-nodes"></i> إشراف كامل ومستمر لمنصات (قوى، التأمينات، ومدد).</li>
+                            <li lang-en><i class="fa-solid fa-circle-nodes"></i> Maintenance of Qiwa, GOSI, and Mudad.</li>
+                            <li lang-ar><i class="fa-solid fa-circle-nodes"></i> الإقرارات الزكوية وضريبة القيمة المضافة عبر زاتكا.</li>
+                            <li lang-en><i class="fa-solid fa-circle-nodes"></i> Routine Tax & Zakat filing via ZATCA.</li>
+                        </ul>
+                        <div class="pkg-footer"><p lang-ar>الميزة: <span>استقرار شامل</span></p><p lang-en>Advantage: <span>Complete Stability</span></p></div>
+                    </div>
+
+                    <div class="pkg-card">
+                        <div class="pkg-header">
+                            <h3 lang-ar>3. الباقة المخصصة</h3><h3 lang-en>3. Customized Package</h3>
+                            <div class="pkg-sub" lang-ar><i class="fa-solid fa-sliders"></i> مخصصة بالكامل</div><div class="pkg-sub" lang-en><i class="fa-solid fa-sliders"></i> Fully Custom</div>
+                        </div>
+                        <ul class="pkg-features">
+                            <li lang-ar><i class="fa-solid fa-gears"></i> حرية اختيار منصات معينة من بين الـ 14 منصة تشغيلية.</li>
+                            <li lang-en><i class="fa-solid fa-gears"></i> Modular choice from 14 platforms.</li>
+                            <li lang-ar><i class="fa-solid fa-gears"></i> إمكانية دمج معاملات محددة وفق الميزانية.</li>
+                            <li lang-en><i class="fa-solid fa-gears"></i> Dynamic scope based on budget.</li>
+                        </ul>
+                        <div class="pkg-footer"><p lang-ar>الميزة: <span>تحكم ذكي ومطلق</span></p><p lang-en>Advantage: <span>Total Agile Control</span></p></div>
+                    </div>
+
+                    <div class="pkg-card featured">
+                        <div class="pkg-badge" lang-ar>الأكثر طلباً وتكاملاً</div><div class="pkg-badge" lang-en>MOST ELITE</div>
+                        <div class="pkg-header">
+                            <h3 lang-ar>4. التشغيل الشامل</h3><h3 lang-en>4. Elite Package</h3>
+                            <div class="pkg-sub" lang-ar><i class="fa-solid fa-layer-group"></i> فروع متعددة</div><div class="pkg-sub" lang-en><i class="fa-solid fa-layer-group"></i> Multiple Branches</div>
+                        </div>
+                        <ul class="pkg-features">
+                            <li lang-ar><i class="fa-solid fa-star" style="color: var(--premium-gold);"></i> إدارة كافة المنصات الـ 14 بالبورتفوليو كلياً وبشكل مدمج.</li>
+                            <li lang-en><i class="fa-solid fa-star" style="color: var(--premium-gold);"></i> 360° ownership of all 14 architectures.</li>
+                            <li lang-ar><i class="fa-solid fa-star" style="color: var(--premium-gold);"></i> ربط أنظمة الفوترة الإلكترونية المتقدمة والمتوافقة.</li>
+                            <li lang-en><i class="fa-solid fa-star" style="color: var(--premium-gold);"></i> Integration of compliant E-Invoicing systems.</li>
+                        </ul>
+                        <div class="pkg-footer"><p lang-ar>الميزة: <span style="color: var(--premium-gold);">تفرغ كلي للتوسع</span></p><p lang-en>Advantage: <span style="color: var(--premium-gold);">Path to expansion</span></p></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- الشريحة 5: خارطة الطريق -->
+        <section class="slide-frame" style="background: #030610;">
+            <div class="slide-header">
+                <h2 class="title-styled" lang-ar style="border-right: 10px solid var(--accent); padding-right: 20px;">رؤية النمو والتوسع 2025-2028</h2>
+                <h2 class="title-styled" lang-en style="border-left: 10px solid var(--accent); padding-left: 20px;">Growth Roadmap 2025-2028</h2>
+            </div>
+            <div class="body-box">
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; width: 100%; height: 380px;">
+                    <div style="position: relative; border-radius: 16px; overflow: hidden; border-top: 5px solid var(--accent);">
+                        <div style="position: absolute; width: 100%; height: 100%; background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=400&q=80'); background-size: cover;"></div>
+                        <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(to top, rgba(15,23,42,0.95) 40%, rgba(15,23,42,0.4) 100%); z-index: 1;"></div>
+                        <div style="position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding: 25px;">
+                            <h4 style="color: var(--accent); font-size: 32px; font-weight: 800; margin-bottom: 10px;">2025</h4>
+                            <p style="font-size: 14px; font-weight: 700;" lang-ar>ترسيخ المنصة وتوسيع القدرات والعمق التشغيلي.</p>
+                            <p style="font-size: 14px; font-weight: 600;" lang-en>Consolidating the platform core and capacity.</p>
+                        </div>
+                    </div>
+                    <div style="position: relative; border-radius: 16px; overflow: hidden; border-top: 5px solid var(--accent);">
+                        <div style="position: absolute; width: 100%; height: 100%; background-image: url('https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=400&q=80'); background-size: cover;"></div>
+                        <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(to top, rgba(15,23,42,0.95) 40%, rgba(15,23,42,0.4) 100%); z-index: 1;"></div>
+                        <div style="position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding: 25px;">
+                            <h4 style="color: var(--accent); font-size: 32px; font-weight: 800; margin-bottom: 10px;">2026</h4>
+                            <p style="font-size: 14px; font-weight: 700;" lang-ar>التوسع الإقليمي وافتتاح مراكز دعم تشغيلي محلي بمسارات مؤتمتة.</p>
+                            <p style="font-size: 14px; font-weight: 600;" lang-en>Regional expansion and local delivery hubs.</p>
+                        </div>
+                    </div>
+                    <div style="position: relative; border-radius: 16px; overflow: hidden; border-top: 5px solid var(--accent);">
+                        <div style="position: absolute; width: 100%; height: 100%; background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=400&q=80'); background-size: cover;"></div>
+                        <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(to top, rgba(15,23,42,0.95) 40%, rgba(15,23,42,0.4) 100%); z-index: 1;"></div>
+                        <div style="position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding: 25px;">
+                            <h4 style="color: var(--accent); font-size: 32px; font-weight: 800; margin-bottom: 10px;">2027</h4>
+                            <p style="font-size: 14px; font-weight: 700;" lang-ar>إطلاق نظام SaaS لذكاء الأعمال والمحاسبة الفورية المدمجة.</p>
+                            <p style="font-size: 14px; font-weight: 600;" lang-en>Launching the global SaaS infrastructure layer.</p>
+                        </div>
+                    </div>
+                    <div style="position: relative; border-radius: 16px; overflow: hidden; border-top: 5px solid var(--premium-gold);">
+                        <div style="position: absolute; width: 100%; height: 100%; background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80'); background-size: cover;"></div>
+                        <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(to top, rgba(15,23,42,0.98) 40%, rgba(15,23,42,0.4) 100%); z-index: 1;"></div>
+                        <div style="position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding: 25px;">
+                            <h4 style="color: var(--premium-gold); font-size: 32px; font-weight: 800; margin-bottom: 10px;">2028</h4>
+                            <p style="font-size: 14px; font-weight: 700;" lang-ar>المعيار الإقليمي الأول للعمليات المؤسسية والتشغيل الذكي.</p>
+                            <p style="font-size: 14px; font-weight: 600;" lang-en>The ultimate benchmark for integrated business ops.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- الشريحة 6: الختام -->
+        <section class="slide-frame" style="background: #02040a;">
+            <div class="hero-inner">
+                <h2 style="font-size: 52px; margin-bottom: 15px; font-weight: 800;" lang-ar>لنبدأ رحلة التميز المؤسسي</h2>
+                <h2 style="font-size: 52px; margin-bottom: 15px; font-weight: 800;" lang-en>Start Your Excellence Journey</h2>
+                <p style="font-size: 20px; color: #94a3b8; margin-bottom: 30px;" lang-ar>تواصل مع فريق Triple One اليوم لبدء التحول التشغيلي المتكامل.</p>
+                <p style="font-size: 20px; color: #94a3b8; margin-bottom: 30px;" lang-en>Connect with the team today to begin your transformation.</p>
+                
+                <div class="dock">
+                    <a href="https://wa.me/201286819571" target="_blank" class="dock-btn wa-d"><i class="fa-brands fa-whatsapp"></i></a>
+                    <a href="https://www.linkedin.com/company/triple-one-solutions/" target="_blank" class="dock-btn li-d"><i class="fa-brands fa-linkedin-in"></i></a>
+                    <a href="https://www.instagram.com/triple_one.co" target="_blank" class="dock-btn ig-d"><i class="fa-brands fa-instagram"></i></a>
+                    <a href="https://snapchat.com/t/eOzyGWel" target="_blank" class="dock-btn snap-d"><i class="fa-brands fa-snapchat"></i></a>
+                    <a href="https://www.tiktok.com/@tripleone.co" target="_blank" class="dock-btn tt-d"><i class="fa-brands fa-tiktok"></i></a>
+                </div>
+                
+                <div class="marquee-wrapper">
+                    <div class="marquee-content marquee-ar" id="marqueeAr">
+                        <div class="marquee-item"><i class="fa-solid fa-bolt"></i> منصتك الشاملة نحو كفاءة تشغيلية بلا حدود</div>
+                        <div class="marquee-item"><i class="fa-solid fa-location-dot"></i> الرياض، المملكة العربية السعودية</div>
+                        <div class="marquee-item"><i class="fa-solid fa-bolt"></i> منصتك الشاملة نحو كفاءة تشغيلية بلا حدود</div>
+                        <div class="marquee-item"><i class="fa-solid fa-location-dot"></i> الرياض، المملكة العربية السعودية</div>
+                    </div>
+                    <div class="marquee-content marquee-en" id="marqueeEn">
+                        <div class="marquee-item"><i class="fa-solid fa-bolt"></i> Your Ultimate Platform for Limitless Operational Efficiency</div>
+                        <div class="marquee-item"><i class="fa-solid fa-location-dot"></i> Riyadh, KSA</div>
+                        <div class="marquee-item"><i class="fa-solid fa-bolt"></i> Your Ultimate Platform for Limitless Operational Efficiency</div>
+                        <div class="marquee-item"><i class="fa-solid fa-location-dot"></i> Riyadh, KSA</div>
+                    </div>
+                </div>
+
+                <p style="font-size: 11px; opacity: 0.3; margin-top: 25px; letter-spacing: 1px;">CONFIDENTIAL — © 2026 TRIPLE ONE CO. ALL RIGHTS RESERVED.</p>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // نظام جزيئات الخلفية الديناميكية
+        const canvas = document.getElementById('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let particlesArray = [];
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        });
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = Math.random() * 0.5 - 0.25;
+                this.speedY = Math.random() * 0.5 - 0.25;
+            }
+            update() {
+                this.x += this.speedX; this.y += this.speedY;
+                if (this.x > canvas.width || this.x < 0) this.speedX *= -1;
+                if (this.y > canvas.height || this.y < 0) this.speedY *= -1;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(56, 189, 248, 0.3)';
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particlesArray = []; for (let i = 0; i < 75; i++) particlesArray.push(new Particle());
+        }
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particlesArray.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animateParticles);
+        }
+        initParticles(); animateParticles();
+
+        // التمرير الذكي والمؤشرات الجانبية
+        const slides = document.querySelectorAll('.slide-frame');
+        const bullets = document.querySelectorAll('.bullet');
+
+        window.addEventListener('scroll', () => {
+            let currentIdx = 0; let minDiff = window.innerHeight;
+            slides.forEach((slide, idx) => {
+                const top = slide.getBoundingClientRect().top;
+                if (Math.abs(top) < minDiff) { minDiff = Math.abs(top); currentIdx = idx; }
+            });
+            bullets.forEach((b, idx) => {
+                if(idx === currentIdx) b.classList.add('active'); else b.classList.remove('active');
+            });
+        });
+
+        function goToSlide(idx) { slides[idx].scrollIntoView({ behavior: 'smooth' }); }
+
+        // دالة تبديل اللغات المصلحة والمستقرة
+        function switchSystemLang() {
+            const arEls = document.querySelectorAll('[lang-ar]');
+            const enEls = document.querySelectorAll('[lang-en]');
+            const btn = document.getElementById('btnSwitch');
+            const marqueeAr = document.getElementById('marqueeAr');
+            const marqueeEn = document.getElementById('marqueeEn');
+            const isCurrentlyAr = arEls[0].style.display !== 'none';
+
+            if (isCurrentlyAr) {
+                arEls.forEach(el => el.style.display = 'none');
+                enEls.forEach(el => el.style.display = 'block');
+                marqueeAr.style.display = 'none';
+                marqueeEn.style.display = 'flex';
+                btn.innerText = 'النسخة العربية';
+                document.body.style.fontFamily = "'Poppins', sans-serif";
+            } else {
+                arEls.forEach(el => el.style.display = 'block');
+                enEls.forEach(el => el.style.display = 'none');
+                marqueeAr.style.display = 'flex';
+                marqueeEn.style.display = 'none';
+                btn.innerText = 'ENGLISH VERSION';
+                document.body.style.fontFamily = "'Almarai', sans-serif";
+            }
+        }
+    </script>
+</body>
+</html>
