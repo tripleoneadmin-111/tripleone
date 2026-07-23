@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
-    <!-- مكتبة الأيقونات الفاخرة Font Awesome -->
+    <!-- مكتبة الأيقونات Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
@@ -24,11 +24,17 @@
             --gold-glow: rgba(245, 158, 11, 0.4);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1); }
+        * { box-sizing: border-box; margin: 0; padding: 0; transition: all 0.3s ease; }
         
         html {
-            scroll-snap-type: y mandatory;
             scroll-behavior: smooth;
+        }
+
+        /* تفعيل scroll-snap فقط للشاشات الكبيرة */
+        @media (min-width: 1025px) {
+            html {
+                scroll-snap-type: y mandatory;
+            }
         }
 
         body {
@@ -44,49 +50,58 @@
             z-index: 1; pointer-events: none; opacity: 0.6;
         }
 
-        /* شريط المهام الزجاجي الثابت */
+        /* شريط المهام العلوي المتجاوب */
         .taskbar {
             width: 100%; height: 80px; 
-            background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid rgba(56, 189, 248, 0.2); position: fixed; top: 0; z-index: 10000;
             display: flex; justify-content: space-between; align-items: center; padding: 0 4%;
         }
-        .logo-section { display: flex; align-items: center; gap: 15px; }
-        .logo-text { font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 28px; color: #fff; letter-spacing: -1px; }
+        .logo-section { display: flex; align-items: center; gap: 10px; }
+        .logo-text { font-family: 'Poppins', sans-serif; font-weight: 800; font-size: 24px; color: #fff; letter-spacing: -1px; }
         .logo-text span { color: var(--accent); text-shadow: 0 0 15px var(--neon-glow); }
-        .badge-all { background: linear-gradient(135deg, var(--secondary), #1d4ed8); color: white; padding: 4px 12px; border-radius: 4px; font-size: 11px; font-weight: 800; letter-spacing: 2px; }
+        .badge-all { background: linear-gradient(135deg, var(--secondary), #1d4ed8); color: white; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 800; letter-spacing: 1px; }
 
-        .social-nav { display: flex; gap: 20px; align-items: center; }
-        .social-nav a { color: #94a3b8; font-size: 20px; text-decoration: none; }
-        .social-nav a:hover { color: var(--accent); transform: scale(1.2); text-shadow: 0 0 10px var(--accent); }
-        .social-nav a.snap-icon:hover { color: #fffc00; text-shadow: 0 0 10px #fffc00; }
+        .social-nav { display: flex; gap: 15px; align-items: center; }
+        .social-nav a { color: #94a3b8; font-size: 18px; text-decoration: none; }
+        .social-nav a:hover { color: var(--accent); transform: scale(1.1); }
+        .social-nav a.snap-icon:hover { color: #fffc00; }
 
         .btn-switch {
             background: linear-gradient(135deg, var(--secondary) 0%, #1d4ed8 100%);
-            color: white; border: none; padding: 10px 22px; border-radius: 6px;
-            font-weight: 800; cursor: pointer; font-size: 13px; box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
+            color: white; border: none; padding: 8px 16px; border-radius: 6px;
+            font-weight: 800; cursor: pointer; font-size: 12px; box-shadow: 0 0 15px rgba(37, 99, 235, 0.4);
+            white-space: nowrap;
         }
-        .btn-switch:hover { background: #1e40af; transform: translateY(-2px); box-shadow: 0 0 25px var(--secondary); }
 
-        /* هيكل الشرائح القفازة */
+        /* هيكل الشرائح */
         .main-deck { position: relative; z-index: 2; }
         .slide-frame {
-            width: 100%; min-height: 100vh; height: 100vh;
-            scroll-snap-align: start; scroll-snap-stop: always;
+            width: 100%; min-height: 100vh;
             display: flex; flex-direction: column; justify-content: center;
-            position: relative; overflow: hidden; padding-top: 80px;
+            position: relative; padding-top: 100px; padding-bottom: 40px;
+        }
+
+        @media (min-width: 1025px) {
+            .slide-frame {
+                height: 100vh;
+                scroll-snap-align: start;
+                scroll-snap-stop: always;
+                padding-top: 80px;
+                padding-bottom: 0;
+            }
         }
 
         /* نظام ثنائي اللغة */
-        [lang-ar] { direction: rtl; text-align: right; }
-        [lang-en] { direction: ltr; text-align: left; display: none; }
+        [lang-ar] { direction: rtl; }
+        [lang-en] { direction: ltr; display: none; }
 
-        .slide-header { padding: 10px 8%; display: flex; align-items: center; justify-content: space-between; }
-        .title-styled { font-size: 38px; font-weight: 800; color: #fff; border-right: 10px solid var(--accent); padding-right: 20px; line-height: 1.1; text-shadow: 0 0 20px rgba(255,255,255,0.1); }
+        .slide-header { padding: 10px 6%; display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .title-styled { font-size: 32px; font-weight: 800; color: #fff; border-right: 8px solid var(--accent); padding-right: 15px; line-height: 1.2; }
         
         /* شريط التنقل الجانبي النقطي */
         .side-nav {
-            position: fixed; right: 30px; top: 50%; transform: translateY(-50%);
+            position: fixed; right: 20px; top: 50%; transform: translateY(-50%);
             display: flex; flex-direction: column; gap: 15px; z-index: 1000;
         }
         .bullet {
@@ -95,7 +110,7 @@
         }
         .bullet.active { background: var(--accent); border-color: #fff; box-shadow: 0 0 15px var(--accent); transform: scale(1.3); }
 
-        /* الـ HERO الفاخرة بمسافات آمنة */
+        /* شريحة البطل الفاخرة (تنسيق معدل لمنع انزياح النصوص) */
         .hero-full-bg {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
             background-size: cover; background-position: center;
@@ -109,95 +124,153 @@
         .hero-inner { 
             position: relative; 
             z-index: 2; 
-            padding: 100px 8% 40px; 
-            max-width: 1400px; 
+            padding: 120px 20px 40px; 
+            max-width: 1000px; 
             width: 100%; 
-            text-align: center; 
             margin: 0 auto; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center !important;
+        }
+
+        .hero-inner [lang-ar], 
+        .hero-inner [lang-en] {
+            width: 100%;
+            text-align: center !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         
         .hero-inner h1 { 
-            font-size: 85px; font-weight: 800; letter-spacing: -2px; line-height: 1.3; margin-bottom: 20px;
+            font-size: 68px; 
+            font-weight: 800; 
+            letter-spacing: -1px; 
+            line-height: 1.2; 
+            margin-bottom: 15px;
             background: linear-gradient(135deg, #ffffff 30%, var(--accent) 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0px 4px 20px rgba(56, 189, 248, 0.2));
-            animation: fadeInUp 1s ease-out forwards;
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent;
+            text-align: center !important;
         }
         
         .hero-tagline {
-            font-size: 38px; font-weight: 800; margin-bottom: 25px; line-height: 1.3;
+            font-size: 32px; 
+            font-weight: 800; 
+            margin-bottom: 15px; 
+            line-height: 1.3;
             background: linear-gradient(135deg, var(--accent) 0%, var(--accent-glow) 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-shadow: 0px 0px 30px rgba(56, 189, 248, 0.25);
-            animation: fadeInUp 1.2s ease-out forwards;
+            -webkit-background-clip: text; 
+            -webkit-text-fill-color: transparent;
+            text-align: center !important;
         }
 
         .hero-desc {
-            font-size: 22px; color: #94a3b8; font-weight: 400; margin-bottom: 40px; letter-spacing: 0.5px;
-            animation: fadeInUp 1.4s ease-out forwards;
+            font-size: 18px; 
+            color: #94a3b8; 
+            font-weight: 400; 
+            margin-bottom: 30px;
+            text-align: center !important;
         }
 
-        .hero-cta-group {
-            display: flex; gap: 20px; justify-content: center; align-items: center;
-            animation: fadeInUp 1.6s ease-out forwards;
+        .hero-cta-group { 
+            display: flex; 
+            gap: 15px; 
+            justify-content: center; 
+            align-items: center; 
+            width: 100%;
         }
+
         .btn-cta-primary {
             background: linear-gradient(135deg, var(--secondary) 0%, #1d4ed8 100%);
-            color: #fff; text-decoration: none; padding: 16px 36px; border-radius: 8px;
-            font-size: 16px; font-weight: 700; box-shadow: 0 0 25px rgba(37, 99, 235, 0.4);
-            display: inline-flex; align-items: center; gap: 10px; border: 1px solid rgba(255,255,255,0.1);
-            cursor: pointer;
-        }
-        .btn-cta-primary:hover {
-            transform: translateY(-3px); box-shadow: 0 0 35px var(--secondary); background: #1e40af;
+            color: #fff; text-decoration: none; padding: 14px 28px; border-radius: 8px;
+            font-size: 15px; font-weight: 700; box-shadow: 0 0 25px rgba(37, 99, 235, 0.4);
+            display: inline-flex; align-items: center; gap: 10px; border: 1px solid rgba(255,255,255,0.1); cursor: pointer;
         }
 
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* المكونات الأخرى المستقرة */
-        .body-box { flex-grow: 1; padding: 10px 8%; display: flex; align-items: center; justify-content: center; width: 100%; overflow: hidden; }
-        .pillar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; width: 100%; }
-        .pillar-card { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; overflow: hidden; }
-        .pillar-card:hover { transform: translateY(-10px); border-color: var(--accent); box-shadow: 0 0 30px var(--neon-glow); }
-        .pillar-img { height: 180px; width: 100%; overflow: hidden; position: relative; }
+        /* مكونات الشبكة والعرض */
+        .body-box { flex-grow: 1; padding: 10px 6%; display: flex; align-items: center; justify-content: center; width: 100%; }
+        
+        .pillar-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; width: 100%; }
+        .pillar-card { background: rgba(30, 41, 59, 0.4); backdrop-filter: blur(15px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; overflow: hidden; }
+        .pillar-img { height: 160px; width: 100%; overflow: hidden; }
         .pillar-img img { width: 100%; height: 100%; object-fit: cover; }
-        .pillar-txt { padding: 25px; }
-        .pillar-txt h3 { font-size: 24px; color: #fff; margin-bottom: 12px; }
-        .pillar-txt p { font-size: 15px; color: #94a3b8; line-height: 1.6; }
+        .pillar-txt { padding: 20px; }
+        .pillar-txt h3 { font-size: 20px; color: #fff; margin-bottom: 10px; }
+        .pillar-txt p { font-size: 14px; color: #94a3b8; line-height: 1.5; }
 
         .packages-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 100%; }
-        .pkg-card { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
-        .pkg-card:hover { transform: translateY(-8px) scale(1.02); border-color: var(--accent); box-shadow: 0 0 30px var(--neon-glow); }
-        .pkg-card.featured { border: 2px solid var(--premium-gold); box-shadow: 0 0 30px var(--gold-glow); }
-        .pkg-badge { position: absolute; top: -14px; left: 20px; background: linear-gradient(135deg, var(--premium-gold), #d97706); color: #020617; font-size: 11px; font-weight: 900; padding: 5px 14px; border-radius: 20px; }
-        .pkg-header h3 { font-size: 18px; font-weight: 800; color: #fff; margin-bottom: 4px; }
-        .pkg-sub { font-size: 13px; color: var(--accent); font-weight: 700; margin-bottom: 12px; }
+        .pkg-card { background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 16px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; position: relative; }
+        .pkg-card.featured { border: 2px solid var(--premium-gold); box-shadow: 0 0 25px var(--gold-glow); }
+        .pkg-badge { position: absolute; top: -12px; left: 15px; background: linear-gradient(135deg, var(--premium-gold), #d97706); color: #020617; font-size: 10px; font-weight: 900; padding: 4px 10px; border-radius: 20px; }
+        .pkg-header h3 { font-size: 17px; font-weight: 800; color: #fff; margin-bottom: 4px; }
+        .pkg-sub { font-size: 12px; color: var(--accent); font-weight: 700; margin-bottom: 10px; }
         .pkg-features { list-style: none; display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
-        .pkg-features li { font-size: 11px; color: #cbd5e1; display: flex; align-items: flex-start; gap: 6px; }
+        .pkg-features li { font-size: 12px; color: #cbd5e1; display: flex; align-items: flex-start; gap: 6px; }
         .pkg-features li i { color: #10b981; margin-top: 2px; }
-        .pkg-footer { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px; font-size: 12px; }
+        .pkg-footer { border-top: 1px solid rgba(255,255,255,0.08); padding-top: 10px; font-size: 12px; }
 
-        .dock { display: flex; gap: 20px; justify-content: center; margin-top: 25px; flex-wrap: wrap; }
-        .dock-btn { width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; color: white; text-decoration: none; }
-        .dock-btn:hover { transform: scale(1.2) rotate(12deg); }
+        .roadmap-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; width: 100%; min-height: 320px; }
+        .roadmap-card { position: relative; border-radius: 16px; overflow: hidden; border-top: 5px solid var(--accent); min-height: 250px; }
+        .roadmap-card-inner { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding: 20px; }
+
+        .dock { display: flex; gap: 15px; justify-content: center; margin-top: 25px; flex-wrap: wrap; }
+        .dock-btn { width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; color: white; text-decoration: none; }
         .wa-d { background: #25d366; } 
         .li-d { background: #0077b5; } 
         .tt-d { background: #000; border: 1px solid var(--accent); } 
         .ig-d { background: linear-gradient(45deg, #f09433, #dc2743, #bc1888); }
-        .snap-d { background: #fffc00; color: #000; box-shadow: 0 0 15px rgba(255, 252, 0, 0.3); }
-        .snap-d:hover { box-shadow: 0 0 25px #fffc00; }
+        .snap-d { background: #fffc00; color: #000; }
 
-        .marquee-wrapper { margin-top: 40px; width: 100%; overflow: hidden; background: rgba(15, 23, 42, 0.6); border-top: 1px solid rgba(56, 189, 248, 0.2); border-bottom: 1px solid rgba(56, 189, 248, 0.2); padding: 16px 0; display: flex; }
-        .marquee-content { display: flex; white-space: nowrap; gap: 50px; }
+        .marquee-wrapper { margin-top: 30px; width: 100%; overflow: hidden; background: rgba(15, 23, 42, 0.6); border-top: 1px solid rgba(56, 189, 248, 0.2); border-bottom: 1px solid rgba(56, 189, 248, 0.2); padding: 12px 0; display: flex; }
+        .marquee-content { display: flex; white-space: nowrap; gap: 40px; }
         .marquee-ar { animation: marqueeRTL 25s linear infinite; }
         .marquee-en { animation: marqueeLTR 25s linear infinite; display: none; }
         @keyframes marqueeRTL { 0% { transform: translateX(0%); } 100% { transform: translateX(50%); } }
         @keyframes marqueeLTR { 0% { transform: translateX(0%); } 100% { transform: translateX(-50%); } }
-        .marquee-item { font-size: 18px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 15px; }
+        .marquee-item { font-size: 15px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px; }
         .marquee-item i { color: var(--accent); }
+
+        /* استعلامات الوسائط للجوال والشاشات المختلفة */
+        @media (max-width: 1024px) {
+            .side-nav { display: none; }
+            .hero-inner { padding-top: 100px; }
+            .hero-inner h1 { font-size: 48px; }
+            .hero-tagline { font-size: 24px; }
+            .hero-desc { font-size: 16px; }
+
+            .pillar-grid { grid-template-columns: repeat(2, 1fr); }
+            .packages-grid { grid-template-columns: repeat(2, 1fr); }
+            .roadmap-grid { grid-template-columns: repeat(2, 1fr); }
+
+            .problem-slide-container { grid-template-columns: 1fr !important; }
+            .problem-img-box { height: 250px !important; }
+        }
+
+        @media (max-width: 640px) {
+            .taskbar { padding: 0 3%; height: 70px; }
+            .logo-text { font-size: 18px; }
+            .badge-all { display: none; }
+            .social-nav { gap: 10px; }
+            .social-nav a { font-size: 16px; }
+            .btn-switch { padding: 6px 10px; font-size: 11px; }
+
+            .hero-inner h1 { font-size: 36px; }
+            .hero-tagline { font-size: 20px; }
+            .hero-desc { font-size: 14px; }
+            .btn-cta-primary { width: 100%; justify-content: center; padding: 12px 20px; }
+
+            .title-styled { font-size: 24px; border-right-width: 5px; }
+
+            .pillar-grid { grid-template-columns: 1fr; }
+            .packages-grid { grid-template-columns: 1fr; }
+            .roadmap-grid { grid-template-columns: 1fr; }
+
+            .dock-btn { width: 42px; height: 42px; font-size: 18px; }
+            .problem-text-box { padding: 30px 20px !important; }
+        }
     </style>
 </head>
 <body>
@@ -232,12 +305,12 @@
 
     <main class="main-deck">
         
-        <!-- الشريحة 1: شريحة البطل الفاخرة -->
+        <!-- الشريحة 1: شريحة البطل المعدلة -->
         <section class="slide-frame">
             <div class="hero-full-bg" style="background-image: url('https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1280&q=80');">
                 <div class="hero-overlay"></div>
                 <div class="hero-inner">
-                    <div lang-ar>
+                    <div lang-ar style="display: flex;">
                         <h1>Triple One</h1>
                         <p class="hero-tagline">منصة واحدة. تميز تشغيلي متكامل.</p>
                         <p class="hero-desc">استشارات الأعمال • الموارد البشرية • المالية والمحاسبة • التقنية</p>
@@ -247,7 +320,7 @@
                             </div>
                         </div>
                     </div>
-                    <div lang-en>
+                    <div lang-en style="display: none;">
                         <h1>Triple One</h1>
                         <p class="hero-tagline">One Platform. Total Operational Excellence.</p>
                         <p class="hero-desc">Business Consulting • HR Solutions • Finance & Audit • Tech Solutions</p>
@@ -262,20 +335,20 @@
         </section>
 
         <!-- الشريحة 2: المشكلة والحل -->
-        <section class="slide-frame" style="display: grid; grid-template-columns: 1.1fr 0.9fr; background: #090d16;">
-            <div style="padding: 60px; display: flex; flex-direction: column; justify-content: center; z-index: 2;">
+        <section class="slide-frame problem-slide-container" style="display: grid; grid-template-columns: 1.1fr 0.9fr; background: #090d16;">
+            <div class="problem-text-box" style="padding: 40px 6%; display: flex; flex-direction: column; justify-content: center; z-index: 2;">
                 <div lang-ar>
-                    <h2 class="title-styled" style="border-right: 10px solid var(--accent); padding-right: 20px;">إنهاء التشتت التشغيلي</h2>
-                    <h3 style="color: #ef4444; font-size: 24px; margin: 25px 0 15px;"><i class="fa-solid fa-triangle-exclamation"></i> المشكلة: جزر منعزلة وهدر هائل</h3>
-                    <p style="font-size: 18px; color: #cbd5e1; line-height: 1.7;">تعاني المنظمات النامية من تشتت قاتل؛ الموارد البشرية والمالية والتقنية تعمل في صوامع منفصلة، مما يسبب ضياع 30% من الإنتاجية وفشل محقق في محاولات التوسع المنهجي.</p>
+                    <h2 class="title-styled">إنهاء التشتت التشغيلي</h2>
+                    <h3 style="color: #ef4444; font-size: 20px; margin: 20px 0 10px;"><i class="fa-solid fa-triangle-exclamation"></i> المشكلة: جزر منعزلة وهدر هائل</h3>
+                    <p style="font-size: 16px; color: #cbd5e1; line-height: 1.7;">تعاني المنظمات النامية من تشتت قاتل؛ الموارد البشرية والمالية والتقنية تعمل في صوامع منفصلة، مما يسبب ضياع 30% من الإنتاجية وفشل محقق في محاولات التوسع المنهجي.</p>
                 </div>
                 <div lang-en>
-                    <h2 class="title-styled" style="border-left: 10px solid var(--accent); padding-left: 20px;">Ending Fragmentation</h2>
-                    <h3 style="color: #ef4444; font-size: 24px; margin: 25px 0 15px;"><i class="fa-solid fa-triangle-exclamation"></i> Problem: Siloed Operations</h3>
-                    <p style="font-size: 18px; color: #cbd5e1; line-height: 1.7;">Most growing organizations operate in fragments. HR, Finance, and Tech run in silos, leading to 30% lost productivity.</p>
+                    <h2 class="title-styled">Ending Fragmentation</h2>
+                    <h3 style="color: #ef4444; font-size: 20px; margin: 20px 0 10px;"><i class="fa-solid fa-triangle-exclamation"></i> Problem: Siloed Operations</h3>
+                    <p style="font-size: 16px; color: #cbd5e1; line-height: 1.7;">Most growing organizations operate in fragments. HR, Finance, and Tech run in silos, leading to 30% lost productivity.</p>
                 </div>
             </div>
-            <div style="position: relative; width: 100%; height: 100%;">
+            <div class="problem-img-box" style="position: relative; width: 100%; height: 100%; min-height: 250px;">
                 <div style="position: absolute; top:0; left:0; width:100%; height:100%; background: linear-gradient(to right, #090d16, transparent); z-index:1;"></div>
                 <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=600&q=80" style="width: 100%; height: 100%; object-fit: cover;">
             </div>
@@ -284,8 +357,8 @@
         <!-- الشريحة 3: الركائز التشغيلية -->
         <section class="slide-frame" style="background: #040811;">
             <div class="slide-header">
-                <h2 class="title-styled" lang-ar style="border-right: 10px solid var(--accent); padding-right: 20px;">الركائز التشغيلية المدمجة</h2>
-                <h2 class="title-styled" lang-en style="border-left: 10px solid var(--accent); padding-left: 20px;">Integrated Service Pillars</h2>
+                <h2 class="title-styled" lang-ar>الركائز التشغيلية المدمجة</h2>
+                <h2 class="title-styled" lang-en>Integrated Service Pillars</h2>
             </div>
             <div class="body-box">
                 <div class="pillar-grid">
@@ -320,8 +393,8 @@
         <!-- الشريحة 4: الباقات -->
         <section class="slide-frame" style="background: #020612;">
             <div class="slide-header">
-                <h2 class="title-styled" lang-ar style="border-right: 10px solid var(--accent); padding-right: 20px;">باقات الخدمات والحلول التشغيلية</h2>
-                <h2 class="title-styled" lang-en style="border-left: 10px solid var(--accent); padding-left: 20px;">Operational Service Packages</h2>
+                <h2 class="title-styled" lang-ar>باقات الخدمات والحلول التشغيلية</h2>
+                <h2 class="title-styled" lang-en>Operational Service Packages</h2>
             </div>
             <div class="body-box">
                 <div class="packages-grid">
@@ -388,45 +461,45 @@
         <!-- الشريحة 5: خارطة الطريق -->
         <section class="slide-frame" style="background: #030610;">
             <div class="slide-header">
-                <h2 class="title-styled" lang-ar style="border-right: 10px solid var(--accent); padding-right: 20px;">رؤية النمو والتوسع 2025-2028</h2>
-                <h2 class="title-styled" lang-en style="border-left: 10px solid var(--accent); padding-left: 20px;">Growth Roadmap 2025-2028</h2>
+                <h2 class="title-styled" lang-ar>رؤية النمو والتوسع 2025-2028</h2>
+                <h2 class="title-styled" lang-en>Growth Roadmap 2025-2028</h2>
             </div>
             <div class="body-box">
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; width: 100%; height: 380px;">
-                    <div style="position: relative; border-radius: 16px; overflow: hidden; border-top: 5px solid var(--accent);">
+                <div class="roadmap-grid">
+                    <div class="roadmap-card">
                         <div style="position: absolute; width: 100%; height: 100%; background-image: url('https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format&fit=crop&w=400&q=80'); background-size: cover;"></div>
                         <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(to top, rgba(15,23,42,0.95) 40%, rgba(15,23,42,0.4) 100%); z-index: 1;"></div>
-                        <div style="position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding: 25px;">
-                            <h4 style="color: var(--accent); font-size: 32px; font-weight: 800; margin-bottom: 10px;">2025</h4>
-                            <p style="font-size: 14px; font-weight: 700;" lang-ar>ترسيخ المنصة وتوسيع القدرات والعمق التشغيلي.</p>
-                            <p style="font-size: 14px; font-weight: 600;" lang-en>Consolidating the platform core and capacity.</p>
+                        <div class="roadmap-card-inner">
+                            <h4 style="color: var(--accent); font-size: 28px; font-weight: 800; margin-bottom: 8px;">2025</h4>
+                            <p style="font-size: 13px; font-weight: 700;" lang-ar>ترسيخ المنصة وتوسيع القدرات والعمق التشغيلي.</p>
+                            <p style="font-size: 13px; font-weight: 600;" lang-en>Consolidating the platform core and capacity.</p>
                         </div>
                     </div>
-                    <div style="position: relative; border-radius: 16px; overflow: hidden; border-top: 5px solid var(--accent);">
+                    <div class="roadmap-card">
                         <div style="position: absolute; width: 100%; height: 100%; background-image: url('https://images.unsplash.com/photo-1521737711867-e3b97375f902?auto=format&fit=crop&w=400&q=80'); background-size: cover;"></div>
                         <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(to top, rgba(15,23,42,0.95) 40%, rgba(15,23,42,0.4) 100%); z-index: 1;"></div>
-                        <div style="position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding: 25px;">
-                            <h4 style="color: var(--accent); font-size: 32px; font-weight: 800; margin-bottom: 10px;">2026</h4>
-                            <p style="font-size: 14px; font-weight: 700;" lang-ar>التوسع الإقليمي وافتتاح مراكز دعم تشغيلي محلي بمسارات مؤتمتة.</p>
-                            <p style="font-size: 14px; font-weight: 600;" lang-en>Regional expansion and local delivery hubs.</p>
+                        <div class="roadmap-card-inner">
+                            <h4 style="color: var(--accent); font-size: 28px; font-weight: 800; margin-bottom: 8px;">2026</h4>
+                            <p style="font-size: 13px; font-weight: 700;" lang-ar>التوسع الإقليمي وافتتاح مراكز دعم تشغيلي محلي بمسارات مؤتمتة.</p>
+                            <p style="font-size: 13px; font-weight: 600;" lang-en>Regional expansion and local delivery hubs.</p>
                         </div>
                     </div>
-                    <div style="position: relative; border-radius: 16px; overflow: hidden; border-top: 5px solid var(--accent);">
+                    <div class="roadmap-card">
                         <div style="position: absolute; width: 100%; height: 100%; background-image: url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=400&q=80'); background-size: cover;"></div>
                         <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(to top, rgba(15,23,42,0.95) 40%, rgba(15,23,42,0.4) 100%); z-index: 1;"></div>
-                        <div style="position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding: 25px;">
-                            <h4 style="color: var(--accent); font-size: 32px; font-weight: 800; margin-bottom: 10px;">2027</h4>
-                            <p style="font-size: 14px; font-weight: 700;" lang-ar>إطلاق نظام SaaS لذكاء الأعمال والمحاسبة الفورية المدمجة.</p>
-                            <p style="font-size: 14px; font-weight: 600;" lang-en>Launching the global SaaS infrastructure layer.</p>
+                        <div class="roadmap-card-inner">
+                            <h4 style="color: var(--accent); font-size: 28px; font-weight: 800; margin-bottom: 8px;">2027</h4>
+                            <p style="font-size: 13px; font-weight: 700;" lang-ar>إطلاق نظام SaaS لذكاء الأعمال والمحاسبة الفورية المدمجة.</p>
+                            <p style="font-size: 13px; font-weight: 600;" lang-en>Launching the global SaaS infrastructure layer.</p>
                         </div>
                     </div>
-                    <div style="position: relative; border-radius: 16px; overflow: hidden; border-top: 5px solid var(--premium-gold);">
+                    <div class="roadmap-card" style="border-top-color: var(--premium-gold);">
                         <div style="position: absolute; width: 100%; height: 100%; background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=400&q=80'); background-size: cover;"></div>
                         <div style="position: absolute; width: 100%; height: 100%; background: linear-gradient(to top, rgba(15,23,42,0.98) 40%, rgba(15,23,42,0.4) 100%); z-index: 1;"></div>
-                        <div style="position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding: 25px;">
-                            <h4 style="color: var(--premium-gold); font-size: 32px; font-weight: 800; margin-bottom: 10px;">2028</h4>
-                            <p style="font-size: 14px; font-weight: 700;" lang-ar>المعيار الإقليمي الأول للعمليات المؤسسية والتشغيل الذكي.</p>
-                            <p style="font-size: 14px; font-weight: 600;" lang-en>The ultimate benchmark for integrated business ops.</p>
+                        <div class="roadmap-card-inner">
+                            <h4 style="color: var(--premium-gold); font-size: 28px; font-weight: 800; margin-bottom: 8px;">2028</h4>
+                            <p style="font-size: 13px; font-weight: 700;" lang-ar>المعيار الإقليمي الأول للعمليات المؤسسية والتشغيل الذكي.</p>
+                            <p style="font-size: 13px; font-weight: 600;" lang-en>The ultimate benchmark for integrated business ops.</p>
                         </div>
                     </div>
                 </div>
@@ -435,11 +508,11 @@
 
         <!-- الشريحة 6: الختام -->
         <section class="slide-frame" style="background: #02040a;">
-            <div class="hero-inner">
-                <h2 style="font-size: 52px; margin-bottom: 15px; font-weight: 800;" lang-ar>لنبدأ رحلة التميز المؤسسي</h2>
-                <h2 style="font-size: 52px; margin-bottom: 15px; font-weight: 800;" lang-en>Start Your Excellence Journey</h2>
-                <p style="font-size: 20px; color: #94a3b8; margin-bottom: 30px;" lang-ar>تواصل مع فريق Triple One اليوم لبدء التحول التشغيلي المتكامل.</p>
-                <p style="font-size: 20px; color: #94a3b8; margin-bottom: 30px;" lang-en>Connect with the team today to begin your transformation.</p>
+            <div class="hero-inner" style="padding-top: 40px;">
+                <h2 style="font-size: 38px; margin-bottom: 12px; font-weight: 800;" lang-ar>لنبدأ رحلة التميز المؤسسي</h2>
+                <h2 style="font-size: 38px; margin-bottom: 12px; font-weight: 800;" lang-en>Start Your Excellence Journey</h2>
+                <p style="font-size: 16px; color: #94a3b8; margin-bottom: 25px;" lang-ar>تواصل مع فريق Triple One اليوم لبدء التحول التشغيلي المتكامل.</p>
+                <p style="font-size: 16px; color: #94a3b8; margin-bottom: 25px;" lang-en>Connect with the team today to begin your transformation.</p>
                 
                 <div class="dock">
                     <a href="https://wa.me/201286819571" target="_blank" class="dock-btn wa-d"><i class="fa-brands fa-whatsapp"></i></a>
@@ -464,14 +537,14 @@
                     </div>
                 </div>
 
-                <p style="font-size: 11px; opacity: 0.3; margin-top: 25px; letter-spacing: 1px;">CONFIDENTIAL — © 2026 TRIPLE ONE CO. ALL RIGHTS RESERVED.</p>
+                <p style="font-size: 11px; opacity: 0.3; margin-top: 20px; letter-spacing: 1px;">CONFIDENTIAL — © 2026 TRIPLE ONE CO. ALL RIGHTS RESERVED.</p>
             </div>
         </section>
 
     </main>
 
     <script>
-        // نظام جزيئات الخلفية الديناميكية
+        // نظام جزيئات الخلفية
         const canvas = document.getElementById('particle-canvas');
         const ctx = canvas.getContext('2d');
         let particlesArray = [];
@@ -479,7 +552,8 @@
         canvas.height = window.innerHeight;
 
         window.addEventListener('resize', () => {
-            canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+            canvas.width = window.innerWidth; 
+            canvas.height = window.innerHeight;
         });
 
         class Particle {
@@ -502,7 +576,9 @@
         }
 
         function initParticles() {
-            particlesArray = []; for (let i = 0; i < 75; i++) particlesArray.push(new Particle());
+            particlesArray = []; 
+            const count = window.innerWidth < 768 ? 30 : 75;
+            for (let i = 0; i < count; i++) particlesArray.push(new Particle());
         }
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -511,7 +587,7 @@
         }
         initParticles(); animateParticles();
 
-        // التمرير الذكي والمؤشرات الجانبية
+        // التمرير والمؤشرات الجانبية
         const slides = document.querySelectorAll('.slide-frame');
         const bullets = document.querySelectorAll('.bullet');
 
@@ -528,7 +604,7 @@
 
         function goToSlide(idx) { slides[idx].scrollIntoView({ behavior: 'smooth' }); }
 
-        // دالة تبديل اللغات المصلحة والمستقرة
+        // دالة تبديل اللغات
         function switchSystemLang() {
             const arEls = document.querySelectorAll('[lang-ar]');
             const enEls = document.querySelectorAll('[lang-en]');
@@ -539,13 +615,13 @@
 
             if (isCurrentlyAr) {
                 arEls.forEach(el => el.style.display = 'none');
-                enEls.forEach(el => el.style.display = 'block');
+                enEls.forEach(el => el.style.display = 'flex');
                 marqueeAr.style.display = 'none';
                 marqueeEn.style.display = 'flex';
                 btn.innerText = 'النسخة العربية';
                 document.body.style.fontFamily = "'Poppins', sans-serif";
             } else {
-                arEls.forEach(el => el.style.display = 'block');
+                arEls.forEach(el => el.style.display = 'flex');
                 enEls.forEach(el => el.style.display = 'none');
                 marqueeAr.style.display = 'flex';
                 marqueeEn.style.display = 'none';
